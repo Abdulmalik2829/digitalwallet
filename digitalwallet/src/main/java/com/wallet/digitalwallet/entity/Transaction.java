@@ -1,5 +1,6 @@
 package com.wallet.digitalwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wallet.digitalwallet.enums.TransactionStatus;
 import com.wallet.digitalwallet.enums.TransactionType;
 import jakarta.persistence.*;
@@ -30,6 +31,7 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "wallet_id", nullable = false)
+    @JsonIgnoreProperties({"transactions", "user", "balance", "currency", "version"})
     private Wallet wallet;
 
     public Transaction(){

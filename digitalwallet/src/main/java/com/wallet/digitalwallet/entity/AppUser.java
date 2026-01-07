@@ -1,8 +1,8 @@
 package com.wallet.digitalwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.Collection;
-
 
 @Entity
 @Table(name = "app_user")
@@ -22,6 +22,7 @@ public class AppUser {
     private String lastName;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("user")
     private Wallet wallet;
 
     @ManyToMany(fetch = FetchType.EAGER)

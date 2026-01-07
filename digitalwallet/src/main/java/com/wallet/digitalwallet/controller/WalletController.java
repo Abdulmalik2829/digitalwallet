@@ -1,5 +1,6 @@
 package com.wallet.digitalwallet.controller;
 
+import com.wallet.digitalwallet.entity.Transaction;
 import com.wallet.digitalwallet.entity.Wallet;
 import com.wallet.digitalwallet.service.WalletService;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +19,26 @@ public class WalletController{
     }
 
     @PostMapping("/{id}/deposit")
-    public ResponseEntity<Wallet> deposit(@PathVariable Long id, @RequestParam BigDecimal amount){
-        Wallet updatedWallet = walletService.deposit(id, amount);
-        return ResponseEntity.ok(updatedWallet);
+    public ResponseEntity<Transaction> deposit(@PathVariable Long id, @RequestParam BigDecimal amount){
+        Transaction receipt = walletService.deposit(id, amount);
+        return ResponseEntity.ok(receipt);
     }
 
     @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Wallet> withdraw(@PathVariable Long id, @RequestParam BigDecimal amount){
-        Wallet updatedWallet = walletService.withdraw(id, amount);
-        return ResponseEntity.ok(updatedWallet);
+    public ResponseEntity<Transaction> withdraw(@PathVariable Long id, @RequestParam BigDecimal amount){
+        Transaction receipt = walletService.withdraw(id, amount);
+        return ResponseEntity.ok(receipt);
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(@RequestParam Long senderId, @RequestParam Long receiverId, @RequestParam BigDecimal amount){
         walletService.transfer(senderId, receiverId, amount);
         return ResponseEntity.ok("Transfer Successful");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Wallet> getWallet(@PathVariable Long id){
+        Wallet wallet = walletService.getWalletById(id);
+        return ResponseEntity.ok(wallet);
     }
 }

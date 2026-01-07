@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class WalletService {
@@ -23,7 +24,7 @@ public class WalletService {
     }
 
     @Transactional
-    public Wallet deposit(Long walletId, BigDecimal amount){
+    public Transaction deposit(Long walletId, BigDecimal amount){
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Error: Wallet not found"));
 
@@ -35,13 +36,13 @@ public class WalletService {
                 TransactionStatus.COMPLETED,
                 wallet
         );
-        transactionRepository.save(transaction);
+        walletRepository.save(wallet);
 
-        return walletRepository.save(wallet);
+        return transactionRepository.save(transaction);
     }
 
     @Transactional
-    public Wallet withdraw(Long walletId, BigDecimal amount){
+    public Transaction withdraw(Long walletId, BigDecimal amount){
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Error: wallet not found"));
 
@@ -57,15 +58,29 @@ public class WalletService {
                 TransactionStatus.COMPLETED,
                 wallet
         );
-        transactionRepository.save(transaction);
+        walletRepository.save(wallet);
 
-        return walletRepository.save(wallet);
+        return transactionRepository.save(transaction);
     }
 
     @Transactional
     public void transfer(Long senderWalletId, Long receiverWalletId, BigDecimal amount){
         withdraw(senderWalletId, amount);
         deposit(receiverWalletId, amount);
+    }
+
+    @Transactional
+    public Wallet getWalletById(Long id){
+        return walletRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Wallet not found with id" + id));
+    }
+
+    @Transactional
+    public List<Transaction> getWalletHistory(Long id){
+        Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Wallet not found with id" + id));
+        return wallet.getTransactions();
+
     }
 }
 
