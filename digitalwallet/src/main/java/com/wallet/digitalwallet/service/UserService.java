@@ -1,5 +1,6 @@
 package com.wallet.digitalwallet.service;
 
+import org.mindrot.jbcrypt.BCrypt;
 import com.wallet.digitalwallet.entity.AppUser;
 import com.wallet.digitalwallet.entity.Role;
 import com.wallet.digitalwallet.entity.Wallet;
@@ -31,6 +32,10 @@ public class UserService {
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         user.setWallet(wallet);
+
+        String rawPassword = user.getPassword();
+        String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        user.setPassword(hashedPassword);
 
         return userRepository.save(user);
     }

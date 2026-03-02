@@ -1,5 +1,6 @@
 package com.wallet.digitalwallet.controller;
 
+import com.wallet.digitalwallet.dto.UserResponse;
 import com.wallet.digitalwallet.entity.AppUser;
 import com.wallet.digitalwallet.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,17 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AppUser> register(@RequestBody AppUser user){
+    public ResponseEntity<UserResponse> register(@RequestBody AppUser user){
         AppUser createdUser = userService.registerNewUser(user);
-        return ResponseEntity.ok(createdUser);
+
+        UserResponse response = new UserResponse(
+                createdUser.getId(),
+                createdUser.getUsername(),
+                createdUser.getfirstName(),
+                createdUser.getlastName()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

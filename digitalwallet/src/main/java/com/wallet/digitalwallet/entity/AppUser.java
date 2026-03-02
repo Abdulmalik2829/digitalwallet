@@ -16,7 +16,7 @@ public class AppUser {
     private String username;
 
     @Column(nullable = false)
-    String password;
+    private String password;
 
     private String firstName;
     private String lastName;
@@ -64,19 +64,19 @@ public class AppUser {
         this.password = password;
     }
 
-    public String getFirstName(){
+    public String getfirstName(){
         return firstName;
     }
 
-    public void setFirstName(String firstName){
+    public void setfirstName(String firstName){
         this.firstName = firstName;
     }
 
-    public String getLastName(){
+    public String getlastName(){
         return lastName;
     }
 
-    public void setLastName(String lastName){
+    public void setlastName(String lastName){
         this.lastName = lastName;
     }
 
