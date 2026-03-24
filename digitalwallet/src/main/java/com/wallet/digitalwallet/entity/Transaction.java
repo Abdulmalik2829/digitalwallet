@@ -34,16 +34,22 @@ public class Transaction {
     @JsonIgnoreProperties({"transactions", "user", "balance", "currency", "version"})
     private Wallet wallet;
 
+    private String reference;
+
+    private Long counterpartyWalletId;
+
     public Transaction(){
         this.timestamp = LocalDateTime.now();
     }
 
-    public Transaction(BigDecimal amount, TransactionType type, TransactionStatus status, Wallet wallet){
+    public Transaction(BigDecimal amount, TransactionType type, TransactionStatus status, Wallet wallet, String reference, Long counterpartyWalletId) {
         this.amount = amount;
         this.type = type;
         this.status = status;
         this.wallet = wallet;
         this.timestamp = LocalDateTime.now();
+        this.reference = reference;
+        this.counterpartyWalletId = counterpartyWalletId;
     }
 
     public Long getId(){
@@ -88,5 +94,21 @@ public class Transaction {
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public Long getCounterpartyWalletId() {
+        return counterpartyWalletId;
+    }
+
+    public void setCounterpartyWalletId(Long counterpartyWalletId) {
+        this.counterpartyWalletId = counterpartyWalletId;
     }
 }

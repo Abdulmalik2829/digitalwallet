@@ -4,10 +4,12 @@ import com.wallet.digitalwallet.entity.Wallet;
 import com.wallet.digitalwallet.entity.Transaction;
 import com.wallet.digitalwallet.enums.TransactionStatus;
 import com.wallet.digitalwallet.enums.TransactionType;
+import com.wallet.digitalwallet.exception.InvalidOperationException;
 import com.wallet.digitalwallet.repository.WalletRepository;
 import com.wallet.digitalwallet.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.UUID;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,17 +28,25 @@ public class WalletService {
     @Transactional
     public Transaction deposit(Long walletId, BigDecimal amount){
         Wallet wallet = walletRepository.findById(walletId)
-                .orElseThrow(() -> new RuntimeException("Error: Wallet not found"));
+                .orElseThrow(() -> new InvalidOperationException("Error: Wallet not found"));
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
+            throw new InvalidOperationException("Error: Amount must be greater than zero");
+        }
 
         wallet.setBalance(wallet.getBalance().add(amount));
+        walletRepository.save(wallet);
+
+        String reference = UUID.randomUUID().toString();
 
         Transaction transaction = new Transaction(
                 amount,
                 TransactionType.CREDIT,
                 TransactionStatus.COMPLETED,
-                wallet
+                wallet,
+                reference,
+                null
         );
-        walletRepository.save(wallet);
 
         return transactionRepository.save(transaction);
     }
@@ -44,20 +54,29 @@ public class WalletService {
     @Transactional
     public Transaction withdraw(Long walletId, BigDecimal amount){
         Wallet wallet = walletRepository.findById(walletId)
-                .orElseThrow(() -> new RuntimeException("Error: wallet not found"));
+                .orElseThrow(() -> new InvalidOperationException("Error: wallet not found"));
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
+            throw new InvalidOperationException("Error: Amount must be greater than zero");
+        }
 
         if (wallet.getBalance().compareTo(amount) < 0){
-            throw new RuntimeException("Error: Insufficient Balance");
+            throw new InvalidOperationException("Error: Insufficient Balance");
         }
 
         wallet.setBalance(wallet.getBalance().subtract(amount));
+
+        String reference = UUID.randomUUID().toString();
 
         Transaction transaction = new Transaction(
                 amount,
                 TransactionType.DEBIT,
                 TransactionStatus.COMPLETED,
-                wallet
+                wallet,
+                reference,
+                null
         );
+
         walletRepository.save(wallet);
 
         return transactionRepository.save(transaction);
@@ -65,6 +84,29 @@ public class WalletService {
 
     @Transactional
     public void transfer(Long senderWalletId, Long receiverWalletId, BigDecimal amount){
+
+        if (senderWalletId == null || receiverWalletId == null){
+            throw new InvalidOperationException("Sender and receiver wallet IDs are required");
+        }
+
+        if (senderWalletId.equals(receiverWalletId)){
+            throw new InvalidOperationException("Sender wallet and receiver wallet must be different");
+        }
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
+            throw new InvalidOperationException("Transfer amount must be greater than zero");
+        }
+
+        Wallet senderWallet = walletRepository.findById(senderWalletId)
+                        .orElseThrow(() -> new InvalidOperationException("Sender wallet not found"));
+
+        Wallet receiverWallet = walletRepository.findById(receiverWalletId)
+                        .orElseThrow(() -> new InvalidOperationException("Receiver wallet not found"));
+
+        if (senderWallet.getBalance().compareTo(amount) < 0){
+            throw new InvalidOperationException("Insufficient Balance");
+        }
+        
         withdraw(senderWalletId, amount);
         deposit(receiverWalletId, amount);
     }
