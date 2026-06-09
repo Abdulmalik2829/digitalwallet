@@ -5,8 +5,11 @@ import com.wallet.digitalwallet.entity.Wallet;
 import com.wallet.digitalwallet.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.math.BigDecimal;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("/api/wallets")
@@ -18,21 +21,47 @@ public class WalletController{
         this.walletService = walletService;
     }
 
-    @PostMapping("/{id}/deposit")
-    public ResponseEntity<Transaction> deposit(@PathVariable Long id, @RequestParam BigDecimal amount){
-        Transaction receipt = walletService.deposit(id, amount);
+    @GetMapping("/balance")
+    public ResponseEntity<?> getBalance(Authentication authentication) {
+
+        String username = authentication.getName();
+
+        Wallet wallet = walletService.getWalletByUsername(username);
+
+        return ResponseEntity.ok(wallet);
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<Transaction> deposit(Authentication authentication, @RequestParam BigDecimal amount){
+
+        String username = authentication.getName();
+
+        Wallet wallet = walletService.getWalletByUsername(username);
+
+        Transaction receipt = walletService.deposit(wallet.getId(), amount);
+
         return ResponseEntity.ok(receipt);
     }
 
-    @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Transaction> withdraw(@PathVariable Long id, @RequestParam BigDecimal amount){
-        Transaction receipt = walletService.withdraw(id, amount);
+    @PostMapping("/withdraw")
+    public ResponseEntity<Transaction> withdraw(Authentication authentication, @RequestParam BigDecimal amount){
+
+        String username = authentication.getName();
+
+        Wallet wallet = walletService.getWalletByUsername(username);
+
+        Transaction receipt = walletService.withdraw(wallet.getId(), amount);
+
         return ResponseEntity.ok(receipt);
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<String> transfer(@RequestParam Long senderId, @RequestParam Long receiverId, @RequestParam BigDecimal amount){
-        walletService.transfer(senderId, receiverId, amount);
+    public ResponseEntity<String> transfer(Authentication authentication, @RequestParam Long receiverId, @RequestParam BigDecimal amount){
+
+        String senderUsername = authentication.getName();
+
+        walletService.transferByUsername(senderUsername, receiverId, amount);
+
         return ResponseEntity.ok("Transfer Successful");
     }
 

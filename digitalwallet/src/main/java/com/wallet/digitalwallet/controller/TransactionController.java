@@ -3,6 +3,7 @@ package com.wallet.digitalwallet.controller;
 import com.wallet.digitalwallet.entity.Transaction;
 import com.wallet.digitalwallet.service.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.wallet.digitalwallet.service.WalletService;
 import com.wallet.digitalwallet.entity.Wallet;
@@ -21,19 +22,14 @@ public class TransactionController {
         this.walletService = walletService;
     }
 
-    @GetMapping("/wallet/{walletId}")
-    public ResponseEntity<List<Transaction>> getHistory(@PathVariable Long walletId){
-        List<Transaction> history = transactionService.getTransactionByWallet(walletId);
-        return ResponseEntity.ok(history);
-    }
+    @GetMapping("/history")
+    public ResponseEntity<List<Transaction>> getTransactionHistory(Authentication authentication) {
 
-    @GetMapping("/{id}/transactions")
-    public ResponseEntity<List<Transaction>> getTransactionsHistory(@PathVariable Long id){
-        List<Transaction> history = walletService.getWalletHistory(id);
+        String username = authentication.getName();
 
-        if (history.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Standard way to say "No history yet"
-        }
+        Wallet wallet = walletService.getWalletByUsername(username);
+
+        List<Transaction> history = transactionService.getTransactionByWallet(wallet.getId());
 
         return ResponseEntity.ok(history);
     }

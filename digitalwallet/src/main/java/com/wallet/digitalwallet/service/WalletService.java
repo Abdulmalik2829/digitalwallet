@@ -124,5 +124,26 @@ public class WalletService {
         return wallet.getTransactions();
 
     }
+
+    @Transactional(readOnly = true)
+    public Wallet getWalletByUsername(String username){
+
+        if (username == null || username.trim().isEmpty()){
+            throw new InvalidOperationException("Username cannot be empty");
+        }
+
+        return walletRepository.findByUser_Username(username)
+                .orElseThrow(() -> new InvalidOperationException("Error: Wallet not found for user: " + username));
+    }
+
+    @Transactional
+    public void transferByUsername(String senderUsername, Long receiverWalletId, BigDecimal amount){
+
+        Wallet senderWallet = getWalletByUsername(senderUsername);
+
+        Long senderWalletId = senderWallet.getId();
+
+        transfer(senderWalletId, receiverWalletId, amount);
+    }
 }
 
