@@ -4,6 +4,7 @@ import com.wallet.digitalwallet.entity.Transaction;
 import com.wallet.digitalwallet.entity.Wallet;
 import com.wallet.digitalwallet.service.WalletService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
@@ -20,8 +21,8 @@ public class WalletController{
         this.walletService = walletService;
     }
 
-    @GetMapping("/balance")
-    public ResponseEntity<?> getBalance(Authentication authentication) {
+    @GetMapping("/my-wallet")
+    public ResponseEntity<?> getMyWallet(Authentication authentication) {
 
         String username = authentication.getName();
 
@@ -65,8 +66,11 @@ public class WalletController{
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Wallet> getWallet(@PathVariable Long id){
+
         Wallet wallet = walletService.getWalletById(id);
+
         return ResponseEntity.ok(wallet);
     }
 }
