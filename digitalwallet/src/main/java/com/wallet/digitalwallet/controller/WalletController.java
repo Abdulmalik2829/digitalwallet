@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 
 import java.math.BigDecimal;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("/api/wallets")

@@ -106,9 +106,25 @@ public class WalletService {
         if (senderWallet.getBalance().compareTo(amount) < 0){
             throw new InvalidOperationException("Insufficient Balance");
         }
-        
-        withdraw(senderWalletId, amount);
-        deposit(receiverWalletId, amount);
+
+        senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
+        receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
+
+        walletRepository.save(senderWallet);
+        walletRepository.save(receiverWallet);
+
+        String reference = UUID.randomUUID().toString();
+
+        Transaction transferTx = new Transaction(
+                amount,
+                TransactionType.DEBIT,
+                TransactionStatus.COMPLETED,
+                senderWallet,
+                reference,
+                null
+        );
+
+        transactionRepository.save(transferTx);
     }
 
     @Transactional
@@ -138,12 +154,13 @@ public class WalletService {
 
     @Transactional
     public void transferByUsername(String senderUsername, Long receiverWalletId, BigDecimal amount){
-
         Wallet senderWallet = getWalletByUsername(senderUsername);
+        transfer(senderWallet.getId(), receiverWalletId, amount);
+    }
 
-        Long senderWalletId = senderWallet.getId();
-
-        transfer(senderWalletId, receiverWalletId, amount);
+    @Transactional(readOnly = true)
+    public List<Wallet> getAllWalletsForAdmin() {
+        return walletRepository.findAll();
     }
 }
 
