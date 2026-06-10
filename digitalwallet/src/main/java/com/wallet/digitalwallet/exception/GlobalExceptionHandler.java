@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
     ) {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.FORBIDDEN.value(), // 👈 Maps to 403 Forbidden
+                HttpStatus.FORBIDDEN.value(),
                 "Access Denied: You do not have the required administrative privileges.",
                 request.getRequestURI()
         );
